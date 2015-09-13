@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.mpwtecnologia</groupId>
+	<artifactId>one-click-deploy-test</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>OCDT - One Click Deploy Test</name>
+	<modules>
+		<module>web-module</module>
+		<module>ejb-module</module>
+	</modules>
+
+	<scm>
+		<developerConnection>scm:svn:http://subversionurl/one-click-deploy-test/branches/${SVN_BRANCH}</developerConnection>
+	</scm>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.3</version>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.5.2</version>
+					<configuration>
+						<tagNameFormat>v@{project.version}</tagNameFormat>
+						<providerImplementations>
+							<svn>javasvn</svn>
+						</providerImplementations>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>com.google.code.maven-scm-provider-svnjava</groupId>
+							<artifactId>maven-scm-provider-svnjava</artifactId>
+							<version>2.1.1</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+
+				<plugin>
+					<groupId>org.jboss.as.plugins</groupId>
+					<artifactId>jboss-as-maven-plugin</artifactId>
+					<version>7.7.Final</version>
+					<configuration>
+						<timeout>60000</timeout>
+						<username>user</username>
+						<password>password</password>
+						<hostname>localhost</hostname>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.flywaydb</groupId>
+					<artifactId>flyway-maven-plugin</artifactId>
+					<version>3.2.1</version>
+					<configuration>
+						<skip>true</skip>
+						<url>jdbc:postgresql://localhost:5432/ocdt</url>
+						<user>user</user>
+						<password>user</password>
+						<validateOnMigrate>false</validateOnMigrate>
+						<baselineOnMigrate>true</baselineOnMigrate>
+						<schemas>
+							<schema>ocdt</schema>
+						</schemas>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<properties>
+		<jboss-as.skip>true</jboss-as.skip>
+	</properties>
+
+</project>

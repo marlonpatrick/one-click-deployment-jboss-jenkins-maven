@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.mpwtecnologia</groupId>
+		<artifactId>one-click-deploy-test</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>web-module</artifactId>
+	<packaging>war</packaging>
+
+
+	<build>
+		<finalName>ocdt-${project.version}</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jboss.as.plugins</groupId>
+				<artifactId>jboss-as-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>upload-war</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+						<configuration>
+							<deployEnabled>false</deployEnabled>
+							<force>true</force>
+						</configuration>
+					</execution>
+					<execution>
+						<id>deactivate-running-deploy</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>execute-commands</goal>
+						</goals>
+						<configuration>
+							<executeCommands>
+								<batch>true</batch>
+								<commands>
+									<command>undeploy ${ACTIVE_DEPLOY} --keep-content</command>
+								</commands>
+							</executeCommands>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>update-database</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>migrate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jboss.as.plugins</groupId>
+				<artifactId>jboss-as-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>enable-this-war</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>execute-commands</goal>
+						</goals>
+						<configuration>
+							<executeCommands>
+								<batch>true</batch>
+								<commands>
+									<command>deploy --name=${project.build.finalName}.${project.packaging}</command>
+								</commands>
+							</executeCommands>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.mpwtecnologia</groupId>
+			<artifactId>ejb-module</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>
